@@ -34,3 +34,17 @@ class RNN(nn.Module):
                 input_t = h_prev[layer] = rnn_unit(input_t, h_prev[layer])
             outputs.append(input_t)
         return torch.stack(outputs, dim=1)
+
+
+class RNNModel(nn.Module):
+    def __init__(self, vocab_size, emb_dim, num_layers, padding_idx):
+        super().__init()
+        self.embedding = nn.Embedding(vocab_size, emb_dim, padding_idx=padding_idx)
+        self.rnn = RNN(emb_dim, num_layers)
+        self.fc = nn.Linear(emb_dim, vocab_size)
+
+    def forward(self, x):
+        embeddings = self.embedding(x)
+        rnn_output = self.rnn(embeddings)
+        logits = self.fc(rnn_output)
+        return logits
