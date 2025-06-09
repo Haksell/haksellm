@@ -1,7 +1,7 @@
 from collections import defaultdict
 import math
 from models import load_model, save_model
-from prepare import tokenize, train_test_split
+from prepare import download_online_corpus, tokenize, train_test_split
 import random
 
 
@@ -65,8 +65,8 @@ CONTEXT_SIZE = 3
 def main():
     random.seed(42)
 
-    # corpus = download_online_corpus("https://www.thelmbook.com/data/brown")
-    corpus = open("text/bee_movie.txt").read()
+    corpus = download_online_corpus("https://www.thelmbook.com/data/brown")
+    # corpus = open("text/bee_movie.txt").read()
     tokens = tokenize(corpus)
     train_corpus, test_corpus = train_test_split(tokens)
     if (model := load_model(MODEL_NAME)) is None:
@@ -75,11 +75,21 @@ def main():
 
     perplexity = model.compute_perplexity(test_corpus)
     print(f"Perplexity on test corpus: {perplexity:.2f}")
-    contexts = ["i will build a", "the best place to", "she was riding a"]
+    contexts = [
+        "The scientists were shocked when they discovered",
+        "I will build a",
+        "The best place to",
+        "She was riding a",
+        "Ulysse is a big",
+    ]
     for context in contexts:
         words = tokenize(context)
-        next_word = model.predict_next_token(words)
-        print(f"{context} -> {next_word}")
+        new_words = []
+        for _ in range(5):
+            next_word = model.predict_next_token(words)
+            new_words.append(next_word)
+            words.append(next_word)
+        print(f"{context} -> {' '.join(new_words)}")
 
 
 if __name__ == "__main__":
