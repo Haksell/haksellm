@@ -6,7 +6,7 @@ import random
 
 
 # TODO: implement with a trie instead
-class CountBasedLanguageModel:
+class NgramModel:
     def __init__(self, n, train_corpus=None):
         self.n = n
         self.ngram_counts = [dict() for _ in range(n)]
@@ -70,7 +70,7 @@ def main():
     tokens = tokenize(corpus)
     train_corpus, test_corpus = train_test_split(tokens)
     if (model := load_model(MODEL_NAME)) is None:
-        model = CountBasedLanguageModel(CONTEXT_SIZE, train_corpus)
+        model = NgramModel(CONTEXT_SIZE, train_corpus)
         save_model(model, MODEL_NAME)
 
     perplexity = model.compute_perplexity(test_corpus)
