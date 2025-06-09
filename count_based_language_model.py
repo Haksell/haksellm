@@ -50,16 +50,12 @@ class CountBasedLanguageModel:
         if not tokens:
             return math.inf
 
-        total_log_likelihood = 0
-        for i, token in enumerate(tokens):
-            context_start = max(0, i - self.n)
-            context = tuple(tokens[context_start:i])
-            probability = self.get_probability(token, context)
-            total_log_likelihood += math.log(probability)
-
-        average_log_likelihood = total_log_likelihood / len(tokens)
-        perplexity = math.exp(-average_log_likelihood)
-        return perplexity
+        total_log_likelihood = sum(
+            math.log(self.get_probability(token, tuple(tokens[max(0, i - self.n) : i])))
+            for i, token in enumerate(tokens)
+        )
+        avg_log_likelihood = total_log_likelihood / len(tokens)
+        return math.exp(-avg_log_likelihood)
 
 
 MODEL_NAME = "ngram"
