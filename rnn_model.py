@@ -113,7 +113,7 @@ FILENAME = "news.tar.gz"
 
 
 # https://github.com/aburkov/theLMbook/blob/main/news_RNN_language_model.ipynb
-def download_and_prepare_data(url, batch_size, tokenizer, context_size):
+def download_and_prepare_data(url, batch_size, tokenizer, context_size, device):
     # Download file
     if not os.path.exists(FILENAME):
         print(f"Downloading dataset from {url}...")
@@ -168,7 +168,7 @@ def download_and_prepare_data(url, batch_size, tokenizer, context_size):
     test_dataloader = DataLoader(
         test_dataset, batch_size=batch_size, collate_fn=collate_fn, num_workers=0
     )
-    return train_dataloader, test_dataloader
+    return train_dataloader.to(device), test_dataloader.to(device)
 
 
 def set_seed(seed):
@@ -193,7 +193,11 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3.5-mini-instruct")
     vocab_size = len(tokenizer)
     train_loader, test_loader = download_and_prepare_data(
-        "https://www.thelmbook.com/data/news", BATCH_SIZE, tokenizer, CONTEXT_SIZE
+        "https://www.thelmbook.com/data/news",
+        BATCH_SIZE,
+        tokenizer,
+        CONTEXT_SIZE,
+        device,
     )
 
     rnn_model = RNNModel(
@@ -207,8 +211,6 @@ def main():
     for _ in range(NUM_EPOCHS):
         rnn_model.train()
         for input_seq, target_seq in train_loader:
-            input_seq = input_seq.to(device)
-            target_seq = target_seq.to(device)
             optimizer.zero_grad()
             output = rnn_model(input_seq)
             target_size = math.prod(input_seq.shape)
