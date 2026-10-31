@@ -1,8 +1,15 @@
-import torch
+import re
 
 
 def main():
-    print(torch.cuda.is_available())
+    with open("the-verdict.txt", encoding="utf-8") as f:
+        raw_text = f.read()
+    print("Total number of character:", len(raw_text))
+    print(raw_text[:99])
+
+    preprocessed = re.split(r'([,.:;?_!"()\']|--|\s)', raw_text)
+    preprocessed = [item.strip() for item in preprocessed if item.strip()]
+    print(preprocessed[:30])
 
 
 if __name__ == "__main__":
