@@ -1,7 +1,7 @@
 import re
 
-TOKEN_END_OF_TEXT = "<|endoftext|>"
-TOKEN_UNKNOWN = "<|unknown|>"
+TOKEN_END = "<|end|>"
+TOKEN_UNK = "<|unk|>"
 
 
 class Tokenizer:
@@ -10,14 +10,15 @@ class Tokenizer:
         self.tok_to_int = {s: i for i, s in enumerate(vocab)}
 
     def encode(self, text):
-        preprocessed = re.split(r'([,.?_!"()\']|--|\s)', text)
+        preprocessed = re.split(r'([,.:;?_!"()\']|--|\s)', text)
         preprocessed = [item.strip() for item in preprocessed if item.strip()]
-        ids = [self.tok_to_int[s] for s in preprocessed]
+        unk_id = self.tok_to_int[TOKEN_UNK]
+        ids = [self.tok_to_int.get(s, unk_id) for s in preprocessed]
         return ids
 
     def decode(self, ids):
         text = " ".join([self.int_to_tok[i] for i in ids])
-        text = re.sub(r'\s+([,.?!"()\'])', r"\1", text)
+        text = re.sub(r'\s+([,.:;?!"()\'])', r"\1", text)
         return text.strip()
 
 
@@ -32,15 +33,18 @@ def main():
     print(preprocessed[:30])
 
     vocab = sorted(set(preprocessed))
-    vocab += [TOKEN_END_OF_TEXT, TOKEN_UNKNOWN]
+    vocab += [TOKEN_END, TOKEN_UNK]
     tokenizer = Tokenizer(vocab)
     print(len(vocab))
 
-    text = """"It's the last he painted, you know,"
-    Mrs. Gisburn said with pardonable pride."""
-    ids = tokenizer.encode(text)
-    print(ids)
-    print(tokenizer.decode(ids))
+    text1 = "Hello, do you like tea?"
+    text2 = "In the sunlit terraces of the palace."
+    text = f"{text1} <|end|> {text2}"
+    print(text)
+    encoded = tokenizer.encode(text)
+    print(encoded)
+    decoded = tokenizer.decode(encoded)
+    print(decoded)
 
 
 if __name__ == "__main__":
