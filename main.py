@@ -1,5 +1,8 @@
 import re
 
+TOKEN_END_OF_TEXT = "<|endoftext|>"
+TOKEN_UNKNOWN = "<|unknown|>"
+
 
 class Tokenizer:
     def __init__(self, vocab):
@@ -29,7 +32,9 @@ def main():
     print(preprocessed[:30])
 
     vocab = sorted(set(preprocessed))
+    vocab += [TOKEN_END_OF_TEXT, TOKEN_UNKNOWN]
     tokenizer = Tokenizer(vocab)
+    print(len(vocab))
 
     text = """"It's the last he painted, you know,"
     Mrs. Gisburn said with pardonable pride."""
