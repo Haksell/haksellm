@@ -69,19 +69,33 @@ def main():
     enc_text = tokenizer.encode(raw_text)
     print(len(enc_text))
 
+    context_length = 4
+
     dataloader = create_dataloader(
-        raw_text, batch_size=8, max_length=4, stride=4, shuffle=False
+        raw_text,
+        batch_size=8,
+        max_length=context_length,
+        stride=context_length,
+        shuffle=False,
     )
     inputs, targets = next(iter(dataloader))
     print(inputs)
     print(targets)
 
-    vocab_size = 6
-    embedding_dim = 3
-    torch.manual_seed(123)
-    embedding_layer = torch.nn.Embedding(vocab_size, embedding_dim)
-    print(embedding_layer.weight)
-    print(embedding_layer(torch.tensor([2, 3, 5, 1])))
+    vocab_size = 50257
+    embedding_dim = 256
+    token_embedding_layer = torch.nn.Embedding(vocab_size, embedding_dim)
+    print(token_embedding_layer.weight)
+    token_embeddings = token_embedding_layer(inputs)
+    print(token_embeddings.shape)
+
+    pos_embedding_layer = torch.nn.Embedding(context_length, embedding_dim)
+    print(pos_embedding_layer.weight)
+    pos_embeddings = pos_embedding_layer(torch.arange(context_length))
+    print(pos_embeddings.shape)
+
+    input_embeddings = token_embeddings + pos_embeddings
+    print(input_embeddings.shape)
 
 
 if __name__ == "__main__":
